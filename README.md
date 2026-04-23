@@ -365,7 +365,7 @@ Validation runs in middleware **before** the request reaches the controller, ens
 Create a `.env` file in the project root with:
 
 ```env
-dbURL=mongodb://127.0.0.1:27017/shopping-sam-app-2
+dbURL=mongodb://127.0.0.1:27017/shopping-dhruv-app-2
 SECRET=your_session_secret_key
 MERCHANT_KEY=your_payu_merchant_key
 MERCHANT_SALT=your_payu_merchant_salt
