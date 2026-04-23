@@ -1,61 +1,55 @@
 const express = require('express');
 const router = express.Router();
-const request = require('request');
+const axios = require('axios');
 const jsSHA = require('jssha');
 const {v4:uuid} = require('uuid')
 const {isLoggedIn} = require('../middleware')
 
 
-router.post('/payment_gateway/payumoney', isLoggedIn, (req, res) => {
-    req.body.txnid = uuid();//Here pass txnid and it should be different on every call
+router.post('/payment_gateway/payumoney', isLoggedIn, async (req, res) => {
+    req.body.txnid = uuid(); // txnid must be unique on every call
     req.body.email = req.user.email;
-    req.body.firstname = req.user.username; //Here save all the details in pay object 
-    
+    req.body.firstname = req.user.username;
+
     const pay = req.body;
 
-    const hashString = process.env.MERCHANT_KEY //store in in different file
+    const hashString = process.env.MERCHANT_KEY
                         + '|' + pay.txnid
-                        + '|' + pay.amount 
-                        + '|' + pay.productinfo 
-                        + '|' + pay.firstname 
-                        + '|' + pay.email 
+                        + '|' + pay.amount
+                        + '|' + pay.productinfo
+                        + '|' + pay.firstname
+                        + '|' + pay.email
                         + '|' + '||||||||||'
-                        + process.env.MERCHANT_SALT //store in in different file
-   
+                        + process.env.MERCHANT_SALT;
+
     const sha = new jsSHA('SHA-512', "TEXT");
     sha.update(hashString);
-    //Getting hashed value from sha module
     const hash = sha.getHash("HEX");
-    
-    //We have to additionally pass merchant key to API so remember to include it.
-    pay.key = process.env.MERCHANT_KEY //store in in different file;
+
+    pay.key = process.env.MERCHANT_KEY;
     pay.surl = 'http://localhost:5000/payment/success';
     pay.furl = 'http://localhost:5000/payment/fail';
     pay.hash = hash;
-    //Making an HTTP/HTTPS call with request
-    request.post({
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        url: 'https://sandboxsecure.payu.in/_payment', //Testing url
-        form: pay
-    }, function (error, httpRes, body) {
-        if (error) 
-            res.send(
-                {status: false, 
-                message:error.toString()
-                }
-            );
 
-        if (httpRes.statusCode === 200) {
-            res.send(body);
-        }
+    try {
+        // PayU expects form-encoded (not JSON) data
+        const formData = new URLSearchParams(pay).toString();
+        const response = await axios.post('https://sandboxsecure.payu.in/_payment', formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            },
+            maxRedirects: 0,
+            validateStatus: (status) => status < 400
+        });
 
-        else if (httpRes.statusCode >= 300 && httpRes.statusCode <= 400) {
-            res.redirect(httpRes.headers.location.toString());
+        if (response.status >= 300 && response.status < 400) {
+            return res.redirect(response.headers.location);
         }
-    })
+        res.send(response.data);
+    } catch (error) {
+        res.send({ status: false, message: error.message });
+    }
 });
 
 // success route

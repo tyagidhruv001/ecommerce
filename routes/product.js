@@ -1,5 +1,6 @@
+//task 6 display products from db
 const express = require('express');
-const router = express.Router();
+const router = express.Router();//mini instance of express router
 const Product = require('../models/Product');
 const { validateProduct , isLoggedIn  , isSeller ,isProductAuthor} = require('../middleware');
 const {showAllProducts, productForm , createProduct , showProduct , editProductForm , updateProduct , deleteProduct} =  require('../controllers/product')

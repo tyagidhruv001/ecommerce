@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Review = require('./Review');
 
+//task 3 schema for product model
 const productSchema = new mongoose.Schema({
     name: {
         type: String,

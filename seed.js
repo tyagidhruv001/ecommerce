@@ -1,3 +1,4 @@
+// task 4 add some dummy data to our database
 const mongoose = require('mongoose');
 
 const Product = require('./models/Product');
@@ -35,7 +36,8 @@ const products = [
         desc: "badiya hai kamao kamao"
     }
 ]
-
+ 
+//db takes time , work either will be done or not , so we use async await to handle such cases, due to promise based nature of mongoose functions
 async function seedDB(){
     // await Product.deleteMany({});
     await Product.insertMany(products);

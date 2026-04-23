@@ -1,4 +1,4 @@
-if(process.env.NODE_ENV !== 'production'){
+if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
@@ -10,8 +10,8 @@ const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
-const passport =  require('passport');
-const LocalStrategy =  require('passport-local');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 const User = require('./models/User');
 const seedDB = require('./seed')
 const MongoStore = require('connect-mongo');
@@ -35,21 +35,21 @@ app.use(methodOverride('_method'));
 let secret = process.env.SECRET || 'weneedabettersecretkey';
 
 let store = MongoStore.create({
-    secret:secret,
+    secret: secret,
     mongoUrl: dbURL,
-    touchAfter:24*60*60
+    touchAfter: 24 * 60 * 60
 })
 
 const sessionConfig = {
-    store:store,
-    name:'bhaukaal',
+    store: store,
+    name: 'bhaukaal',
     secret: secret,
     resave: false,
     saveUninitialized: true,
-    cookie:{
-        httpOnly:true,
-        expires:Date.now() + 1000*60*60*24*7,
-        maxAge: 1000*60*60*24*7
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
 
@@ -72,7 +72,7 @@ app.use((req, res, next) => {
     res.locals.error = req.flash('error');
     next();
 })
-
+// task 5 seed the database with dummy data
 // seedDB();
 
 // Routes require
@@ -84,7 +84,7 @@ const productApi = require('./routes/api/productapi');
 const paymentRoutes = require('./routes/payment');
 
 
-app.get('/' , (req,res)=>{
+app.get('/', (req, res) => {
     res.render('home');
 })
 
